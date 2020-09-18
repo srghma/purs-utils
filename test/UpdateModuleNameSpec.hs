@@ -15,16 +15,53 @@ import Text.RE.PCRE.Text
 import UpdateModuleName
 import Control.Arrow
 
-content :: Text
-content = [s|
+spec :: Spec
+spec = do
+  it "no changes" $ do
+    let
+      content :: Text
+      content = [s|
+module Data.Percent (Percent, calcPercent, unsafePercent, toNumber) where
+
+newtype Percent = Percent Number
+|]
+      expectedPathToModule = PathToModule ("Data" :| ["Percent"])
+
+    updateModuleName content expectedPathToModule `shouldBe` UpdateModuleNameOutput__NothingChanged
+  it "changes" $ do
+    let
+      content :: Text
+      content = [s|
 module Data.Percent (Percent, calcPercent, unsafePercent, toNumber) where
 
 newtype Percent = Percent Number
 |]
 
-shouldBeModuleName = PathToModule ("Data" :| ["Percent"])
+      newContent :: Text
+      newContent = [s|
+module UpdatedData.Percent (Percent, calcPercent, unsafePercent, toNumber) where
 
-spec :: Spec
-spec = do
-  it "UpdateModuleName" $ do
-    updateModuleName content shouldBeModuleName `shouldBe` Nothing
+newtype Percent = Percent Number
+|]
+      expectedPathToModule = PathToModule ("UpdatedData" :| ["Percent"])
+
+    updateModuleName content expectedPathToModule `shouldBe` UpdateModuleNameOutput__Updated newContent
+  it "changes 2" $ do
+    let
+      content :: Text
+      content = [s|
+module Data.Percent
+
+newtype Percent = Percent Number
+|]
+
+      newContent :: Text
+      newContent = [s|
+module UpdatedData.Percent
+
+newtype Percent = Percent Number
+|]
+
+      expectedPathToModule = PathToModule ("UpdatedData" :| ["Percent"])
+
+    updateModuleName content expectedPathToModule `shouldBe` UpdateModuleNameOutput__Updated newContent

@@ -105,10 +105,10 @@ main = do
 
   let baseDir = makeValidDirectory $ directory appOptions -- ending with /
 
-  -- liftIO $ putStrLn $ "baseDir " <> Turtle.encodeString baseDir
+  -- putStrLn $ "baseDir " <> Turtle.encodeString baseDir
 
   -- contains absolute path inside
-  _base :/ (dirTree :: DirTree FilePath) <- liftIO $ System.Directory.Tree.readDirectoryWith return (Turtle.encodeString baseDir)
+  _base :/ (dirTree :: DirTree FilePath) <- System.Directory.Tree.readDirectoryWith return (Turtle.encodeString baseDir)
 
   let (dirTreeWithPursFiles :: DirTree FilePath) =
         System.Directory.Tree.filterDir
@@ -117,15 +117,16 @@ main = do
 
   filePaths :: [Turtle.FilePath] <- map Turtle.decodeString <$> dirTreeContent dirTreeWithPursFiles
 
-  forConcurrently_ filePaths \(filePath) -> Turtle.sh $ do
-    liftIO $ putStrLn $ "processing " <> Turtle.encodeString filePath
+  forConcurrently_ filePaths \(filePath) -> do
+    putStrLn $ "processing " <> Turtle.encodeString filePath
 
-    fileContent <- liftIO $ Turtle.readTextFile filePath
+    fileContent <- Turtle.readTextFile filePath
 
-    pathToModule <- liftIO $ fullPathToPathToModule baseDir filePath
+    pathToModule <- fullPathToPathToModule baseDir filePath
 
-    case updateModuleName fileContent of
-      Nothing -> liftIO $ putStrLn @Text $ "no changes"
-      Just newFileContent -> liftIO $ do
+    case updateModuleName fileContent pathToModule of
+      UpdateModuleNameOutput__NothingChanged -> putStrLn @Text $ "nothing changed"
+      UpdateModuleNameOutput__Error errorMessage -> putStrLn @Text $ "error: " <> errorMessage
+      UpdateModuleNameOutput__Updated newFileContent -> do
         Turtle.writeTextFile filePath newFileContent
         putStrLn @Text $ "updated module name to " <> show pathToModule
