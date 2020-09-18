@@ -22,7 +22,7 @@ $ update-module-name-purs --directory /home/srghma/projects/purescript-halogen-n
 processing ./app/Foo/Bar.purs
   nothing changed
 processing ./app/Foo/Baz.purs
-  updated module name to "Foo.Quux"
+  updated module name to "Foo.Baz"
 ```
 
 # How to install
