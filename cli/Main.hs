@@ -36,6 +36,7 @@ import "directory-tree" System.Directory.Tree (DirTree (..), AnchoredDirTree (..
 import qualified "cases" Cases
 import Control.Concurrent.Async
 import UpdateModuleName
+import Control.Monad.Writer
 
 filterDirTreeByFilename :: (String -> Bool) -> DirTree a -> Bool
 filterDirTreeByFilename _ (Dir ('.':_) _) = False
@@ -117,16 +118,27 @@ main = do
 
   filePaths :: [Turtle.FilePath] <- map Turtle.decodeString <$> dirTreeContent dirTreeWithPursFiles
 
+  mutex <- newMVar ()
+
+  let putStrLn' = withMVar mutex . const . putStrLn @Text
+
   forConcurrently_ filePaths \(filePath) -> do
-    putStrLn $ "processing " <> Turtle.encodeString filePath
+    let
+      log x = tell [x]
 
-    fileContent <- Turtle.readTextFile filePath
+      action :: WriterT [Text] IO ()
+      action = do
+        log $ toS $ "processing " <> Turtle.encodeString filePath
 
-    pathToModule <- fullPathToPathToModule baseDir filePath
+        fileContent <- liftIO $ Turtle.readTextFile filePath
 
-    case updateModuleName fileContent pathToModule of
-      UpdateModuleNameOutput__NothingChanged -> putStrLn @Text $ "nothing changed"
-      UpdateModuleNameOutput__Error errorMessage -> putStrLn @Text $ "error: " <> errorMessage
-      UpdateModuleNameOutput__Updated newFileContent -> do
-        Turtle.writeTextFile filePath newFileContent
-        putStrLn @Text $ "updated module name to " <> show pathToModule
+        pathToModule <- liftIO $ fullPathToPathToModule baseDir filePath
+
+        case updateModuleName fileContent pathToModule of
+          UpdateModuleNameOutput__NothingChanged -> log $ "  nothing changed"
+          UpdateModuleNameOutput__Error errorMessage -> log $ "  error: " <> errorMessage
+          UpdateModuleNameOutput__Updated newFileContent -> do
+            liftIO $ Turtle.writeTextFile filePath newFileContent
+            log $ "  updated module name to \"" <> printPathToModule pathToModule <> "\""
+
+    execWriterT action >>= (putStrLn' . Text.intercalate "\n")

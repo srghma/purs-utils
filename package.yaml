@@ -75,6 +75,7 @@ dependencies:
 - async
 - system-filepath
 - ilist
+- mtl
 
 library:
   source-dirs: src

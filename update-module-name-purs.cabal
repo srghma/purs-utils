@@ -43,6 +43,7 @@ library
     , hspec
     , hspec-discover
     , ilist
+    , mtl
     , optparse-applicative
     , protolude
     , regex
@@ -75,6 +76,7 @@ executable update-module-name-purs-exe
     , hspec
     , hspec-discover
     , ilist
+    , mtl
     , optparse-applicative
     , protolude
     , regex
@@ -110,6 +112,7 @@ test-suite update-module-name-purs-test
     , hspec
     , hspec-discover
     , ilist
+    , mtl
     , optparse-applicative
     , protolude
     , regex
