@@ -24,3 +24,9 @@ processing ./app/Foo/Bar.purs
 processing ./app/Foo/Baz.purs
   updated module name to "Foo.Quux"
 ```
+
+# How to install
+
+build and
+
+`ln -s $HOME/projects/update-module-name-purs/.stack-work/dist/x86_64-linux-nix/Cabal-2.4.0.1/build/update-module-name-purs-exe/update-module-name-purs-exe $HOME/.bin/update-module-name-purs`
