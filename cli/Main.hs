@@ -63,13 +63,13 @@ appOptionsParser = AppOptions
       ( long "directory"
     <> short 'd'
     <> metavar "DIRECTORY"
-    <> help "Base dir with Anyname.module.purs OR Anyname.module.scss files" )
+    <> help "Base dir with .purs files" )
 
 appOptionsParserInfo :: ParserInfo AppOptions
 appOptionsParserInfo = info (appOptionsParser <**> helper)
   ( fullDesc
-  <> progDesc "Update module name"
-  <> header "Update module name" )
+  <> progDesc "Adds or updates `module Foo.Bar` based on path"
+  <> header "Update module name in directory recursively" )
 
 -- Example:
 -- baseDir - /home/srghma/projects/purescript-halogen-nextjs/app/
