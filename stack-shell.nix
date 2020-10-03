@@ -6,14 +6,15 @@
   #
   # we are using second option
 
-  ghc # stack expect this file to define a function of exactly one argument that should be called ghc
+  # ghc # stack expect this file to define a function of exactly one argument that should be called ghc
 }:
 
 
 with pkgs;
 
 haskell.lib.buildStackProject {
-  inherit ghc;
+  # inherit ghc;
+  ghc = haskell.compiler.ghc884;
   name = "myEnv";
   buildInputs = [ zlib cabal-install git pcre ];
 }

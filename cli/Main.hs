@@ -18,6 +18,7 @@ module Main where
 
 -- import qualified Filesystem.Path.CurrentOS
 import Options.Applicative
+import Options.Applicative.NonEmpty
 import "protolude" Protolude hiding (find)
 import qualified "turtle" Turtle
 import "turtle" Turtle ((</>))
@@ -54,16 +55,18 @@ anyCaseToCamelCase :: Text -> Text
 anyCaseToCamelCase = Cases.process Cases.title Cases.camel -- first letter is always upper
 
 data AppOptions = AppOptions
-  { directory :: Turtle.FilePath
+  { directories :: NonEmpty Turtle.FilePath
   }
 
 appOptionsParser :: Parser AppOptions
 appOptionsParser = AppOptions
-  <$> strOption
-      ( long "directory"
-    <> short 'd'
-    <> metavar "DIRECTORY"
-    <> help "Base dir with .purs files" )
+  <$> some1
+    ( fmap makeValidDirectory $ strOption
+        ( long "directory"
+      <> short 'd'
+      <> metavar "DIRECTORY"
+      <> help "Base dir with .purs files" )
+    )
 
 appOptionsParserInfo :: ParserInfo AppOptions
 appOptionsParserInfo = info (appOptionsParser <**> helper)
@@ -100,14 +103,15 @@ stripSuffix suffix target =
 makeValidDirectory :: Turtle.FilePath -> Turtle.FilePath
 makeValidDirectory = Turtle.decodeString . appendIfNotAlreadySuffix "/" . Turtle.encodeString
 
-main :: IO ()
-main = do
-  appOptions <- execParser appOptionsParserInfo
+withConcurrentPutStrLn f = do
+  mutex <- newMVar ()
 
-  let baseDir = makeValidDirectory $ directory appOptions -- ending with /
+  let putStrLn' = withMVar mutex . const . putStrLn @Text
 
-  -- putStrLn $ "baseDir " <> Turtle.encodeString baseDir
+  f putStrLn'
 
+findPursFiles :: Turtle.FilePath -> IO [Turtle.FilePath]
+findPursFiles baseDir = do
   -- contains absolute path inside
   _base :/ (dirTree :: DirTree FilePath) <- System.Directory.Tree.readDirectoryWith return (Turtle.encodeString baseDir)
 
@@ -118,27 +122,38 @@ main = do
 
   filePaths :: [Turtle.FilePath] <- map Turtle.decodeString <$> dirTreeContent dirTreeWithPursFiles
 
-  mutex <- newMVar ()
+  pure filePaths
 
-  let putStrLn' = withMVar mutex . const . putStrLn @Text
+main :: IO ()
+main = do
+  appOptions <- execParser appOptionsParserInfo
 
-  forConcurrently_ filePaths \(filePath) -> do
-    let
-      log x = tell [x]
+  baseDirsWithPursFiles :: NonEmpty (Turtle.FilePath, [Turtle.FilePath]) <-
+    forConcurrently (directories appOptions) \baseDir -> do
+      files <- findPursFiles baseDir
+      pure $ (baseDir, files)
 
-      action :: WriterT [Text] IO ()
-      action = do
-        log $ toS $ "processing " <> Turtle.encodeString filePath
+  -- putStrLn $ "baseDir " <> Turtle.encodeString baseDir
 
-        fileContent <- liftIO $ Turtle.readTextFile filePath
+  withConcurrentPutStrLn \concurrentPutStrLn ->
+    forConcurrently_ baseDirsWithPursFiles \((baseDir, filePaths)) ->
+      forConcurrently_ filePaths \filePath -> do
+        let
+          log x = tell [x]
 
-        pathToModule <- liftIO $ fullPathToPathToModule baseDir filePath
+          action :: WriterT [Text] IO ()
+          action = do
+            log $ toS $ "processing " <> Turtle.encodeString filePath
 
-        case updateModuleName fileContent pathToModule of
-          UpdateModuleNameOutput__NothingChanged -> log $ "  nothing changed"
-          UpdateModuleNameOutput__Error errorMessage -> log $ "  error: " <> errorMessage
-          UpdateModuleNameOutput__Updated newFileContent -> do
-            liftIO $ Turtle.writeTextFile filePath newFileContent
-            log $ "  updated module name to \"" <> printPathToModule pathToModule <> "\""
+            fileContent <- liftIO $ Turtle.readTextFile filePath
 
-    execWriterT action >>= (putStrLn' . Text.intercalate "\n")
+            pathToModule <- liftIO $ fullPathToPathToModule baseDir filePath
+
+            case updateModuleName fileContent pathToModule of
+              UpdateModuleNameOutput__NothingChanged -> log $ "  nothing changed"
+              UpdateModuleNameOutput__Error errorMessage -> log $ "  error: " <> errorMessage
+              UpdateModuleNameOutput__Updated newFileContent -> do
+                liftIO $ Turtle.writeTextFile filePath newFileContent
+                log $ "  updated module name to \"" <> printPathToModule pathToModule <> "\""
+
+        execWriterT action >>= (concurrentPutStrLn . Text.intercalate "\n")

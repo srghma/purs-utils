@@ -11,9 +11,23 @@ packages:
       sha256: b992fe25c3c892f120936a2b6e5743039151a939682423e9acd68723406c0198
   original:
     hackage: list-singleton-1.0.0.2@sha256:985c07bd5e44f3e21ff460b474b5fcc3c33c7082eaedf67905378ec707e7c4d0,1100
+- completed:
+    hackage: optparse-applicative-0.16.0.0@sha256:de6f2a1be366a1f6db786883c605bbd121bbafbe41c4fff00a306672566b0e7f,4785
+    pantry-tree:
+      size: 2979
+      sha256: fabeefe6fe000bbc1ba8d0a10e9452197e882f625937a8b6f40afec14d03eba4
+  original:
+    hackage: optparse-applicative-0.16.0.0
+- completed:
+    hackage: turtle-1.5.21@sha256:e274dbe513a7d8e7a9477d3f69d57d67a8426ccc3a389e13ebb42845907bd313,4894
+    pantry-tree:
+      size: 1114
+      sha256: b0fd9a2cc8d051d9966c859ab03b5dd6e040cd53e68ee6562888c18f276f7446
+  original:
+    hackage: turtle-1.5.21
 snapshots:
 - completed:
-    size: 525876
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/13.yaml
-    sha256: 4a0e79eb194c937cc2a1852ff84d983c63ac348dc6bad5f38d20cab697036eef
-  original: lts-14.13
+    size: 532380
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/16.yaml
+    sha256: d6b004b095fe2a0b8b14fbc30014ee97e58843b9c9362ddb9244273dda62649e
+  original: lts-16.16
