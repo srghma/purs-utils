@@ -65,7 +65,7 @@ appOptionsParser = AppOptions
         ( long "directory"
       <> short 'd'
       <> metavar "DIRECTORY"
-      <> help "Base dir with .purs files" )
+      <> help "Base dir with .purs files. Can pass multiple -d" )
     )
 
 appOptionsParserInfo :: ParserInfo AppOptions
