@@ -29,4 +29,4 @@ processing ./app/Foo/Baz.purs
 
 build and
 
-`ln -s $HOME/projects/update-module-name-purs/.stack-work/dist/x86_64-linux-nix/Cabal-2.4.0.1/build/update-module-name-purs-exe/update-module-name-purs-exe $HOME/.bin/update-module-name-purs`
+`ln -s $HOME/projects/update-module-name-purs/.stack-work/dist/x86_64-linux-nix/Cabal-3.0.1.0/build/update-module-name-purs-exe/update-module-name-purs-exe $HOME/.bin/update-module-name-purs`
