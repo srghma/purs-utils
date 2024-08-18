@@ -1,18 +1,18 @@
-resolver: lts-16.16
+resolver: lts-22.33 # 9.6.6
+# resolver: lts-16.16
 
 nix:
   enable: true
-  shell-file: stack-shell.nix
-  path: [nixpkgs=./nix/nixpkgs/default.nix] # to get ghc from this nixpkgs, check `stack build --verbose` to see
+  # shell-file: stack-shell.nix
+  # path: [nixpkgs=./nix/nixpkgs/default.nix] # to get ghc from this nixpkgs, check `stack build --verbose` to see
 
 packages:
 - .
 
-extra-deps:
-  - list-singleton-1.0.0.2@sha256:985c07bd5e44f3e21ff460b474b5fcc3c33c7082eaedf67905378ec707e7c4d0,1100
-  - optparse-applicative-0.16.0.0 # will use hackage
-  - turtle-1.5.21 # will use hackage
-
+# extra-deps:
+#   - list-singleton-1.0.0.2@sha256:985c07bd5e44f3e21ff460b474b5fcc3c33c7082eaedf67905378ec707e7c4d0,1100
+#   - optparse-applicative-0.16.0.0 # will use hackage
+#   - turtle-1.5.21 # will use hackage
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

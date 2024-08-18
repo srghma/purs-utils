@@ -1,0 +1,9 @@
+resolver: lts-22.33
+# resolver: lts-16.16
+system-ghc: true
+install-ghc: false
+
+# https://github.com/codygman/haskell-nix-stack-workflow/blob/e66a50e2be2706724174b2e7d3c5e4a884f42179/stack-nix.yaml
+# https://github.com/input-output-hk/haskell.nix/issues/689#issuecomment-643832619
+
+# stack --stack-yaml stack.yaml --no-nix ghci

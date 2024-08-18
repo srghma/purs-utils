@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -30,7 +30,39 @@ library
       Paths_update_module_name_purs
   hs-source-dirs:
       src
-  default-extensions: BangPatterns ConstraintKinds DataKinds DefaultSignatures DeriveDataTypeable DeriveGeneric DeriveLift DuplicateRecordFields FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns NoImplicitPrelude OverloadedStrings PackageImports QuasiQuotes RecordWildCards ScopedTypeVariables StandaloneDeriving TemplateHaskell TupleSections TypeApplications TypeFamilies ViewPatterns DerivingStrategies BlockArguments
+  default-extensions:
+      BangPatterns
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveDataTypeable
+      DeriveGeneric
+      DeriveLift
+      DuplicateRecordFields
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GADTs
+      GeneralizedNewtypeDeriving
+      InstanceSigs
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NoImplicitPrelude
+      OverloadedStrings
+      PackageImports
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneDeriving
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      ViewPatterns
+      DerivingStrategies
+      BlockArguments
   build-depends:
       async
     , base >=4.7 && <5
@@ -44,6 +76,7 @@ library
     , hspec-discover
     , ilist
     , mtl
+    , non-empty-text
     , optparse-applicative
     , protolude
     , regex
@@ -51,7 +84,6 @@ library
     , regex-pcre
     , regex-with-pcre
     , string-qq
-    , system-filepath
     , text
     , turtle
   default-language: Haskell2010
@@ -62,7 +94,39 @@ executable update-module-name-purs-exe
       Paths_update_module_name_purs
   hs-source-dirs:
       cli
-  default-extensions: BangPatterns ConstraintKinds DataKinds DefaultSignatures DeriveDataTypeable DeriveGeneric DeriveLift DuplicateRecordFields FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns NoImplicitPrelude OverloadedStrings PackageImports QuasiQuotes RecordWildCards ScopedTypeVariables StandaloneDeriving TemplateHaskell TupleSections TypeApplications TypeFamilies ViewPatterns DerivingStrategies BlockArguments
+  default-extensions:
+      BangPatterns
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveDataTypeable
+      DeriveGeneric
+      DeriveLift
+      DuplicateRecordFields
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GADTs
+      GeneralizedNewtypeDeriving
+      InstanceSigs
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NoImplicitPrelude
+      OverloadedStrings
+      PackageImports
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneDeriving
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      ViewPatterns
+      DerivingStrategies
+      BlockArguments
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       async
@@ -77,6 +141,7 @@ executable update-module-name-purs-exe
     , hspec-discover
     , ilist
     , mtl
+    , non-empty-text
     , optparse-applicative
     , protolude
     , regex
@@ -84,7 +149,6 @@ executable update-module-name-purs-exe
     , regex-pcre
     , regex-with-pcre
     , string-qq
-    , system-filepath
     , text
     , turtle
     , update-module-name-purs
@@ -98,7 +162,39 @@ test-suite update-module-name-purs-test
       Paths_update_module_name_purs
   hs-source-dirs:
       test
-  default-extensions: BangPatterns ConstraintKinds DataKinds DefaultSignatures DeriveDataTypeable DeriveGeneric DeriveLift DuplicateRecordFields FlexibleContexts FlexibleInstances FunctionalDependencies GADTs GeneralizedNewtypeDeriving InstanceSigs LambdaCase MultiParamTypeClasses MultiWayIf NamedFieldPuns NoImplicitPrelude OverloadedStrings PackageImports QuasiQuotes RecordWildCards ScopedTypeVariables StandaloneDeriving TemplateHaskell TupleSections TypeApplications TypeFamilies ViewPatterns DerivingStrategies BlockArguments
+  default-extensions:
+      BangPatterns
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveDataTypeable
+      DeriveGeneric
+      DeriveLift
+      DuplicateRecordFields
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GADTs
+      GeneralizedNewtypeDeriving
+      InstanceSigs
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NoImplicitPrelude
+      OverloadedStrings
+      PackageImports
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneDeriving
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      ViewPatterns
+      DerivingStrategies
+      BlockArguments
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       async
@@ -113,6 +209,7 @@ test-suite update-module-name-purs-test
     , hspec-discover
     , ilist
     , mtl
+    , non-empty-text
     , optparse-applicative
     , protolude
     , regex
@@ -120,7 +217,6 @@ test-suite update-module-name-purs-test
     , regex-pcre
     , regex-with-pcre
     , string-qq
-    , system-filepath
     , text
     , turtle
     , update-module-name-purs

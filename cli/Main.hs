@@ -24,7 +24,7 @@ import qualified "turtle" Turtle
 import "turtle" Turtle ((</>))
 import qualified "directory" System.Directory
 import qualified "filepath" System.FilePath
-import qualified "system-filepath" Filesystem.Path
+-- import qualified "system-filepath" Filesystem.Path
 import "base" Data.String (String)
 import qualified "base" Data.String as String
 import qualified "base" Data.List as List
@@ -55,43 +55,92 @@ anyCaseToCamelCase :: Text -> Text
 anyCaseToCamelCase = Cases.process Cases.title Cases.camel -- first letter is always upper
 
 data AppOptions = AppOptions
-  { directories :: NonEmpty Turtle.FilePath
+  { appOptions_projectRoots :: [Turtle.FilePath] -- to [(Nothing, filepath ++ "/src", true), [(Just testPathToModule, filepath ++ "/test", false)]]
+  , appOptions_srcDirs      :: [Turtle.FilePath] -- to (Nothing, filepath, true)
+  , appOptions_testDirs     :: [Turtle.FilePath] -- to (Just testPathToModule, filepath, true)
+  , appOptions_customDirs   :: [(PathToModule, Turtle.FilePath)] -- to (Just pathToModule, filepath, true)
   }
 
+data DirectoryWithPursFilesConfig = DirectoryWithPursFilesConfig
+  { directoryWithPursFilesConfig_prependPathToModule :: Maybe PathToModule
+  , directoryWithPursFilesConfig_pathToDirectory     :: Turtle.FilePath
+  , directoryWithPursFilesConfig_required            :: Bool
+  }
+
+appOptionsToDirectoryWithPursFilesConfig :: AppOptions -> Maybe (NonEmpty DirectoryWithPursFilesConfig)
+appOptionsToDirectoryWithPursFilesConfig opts =
+  let
+    -- Helper function to create configs for source and test directories
+    createConfig :: Maybe PathToModule -> Turtle.FilePath -> Bool -> DirectoryWithPursFilesConfig
+    createConfig maybeModulePath path required =
+      DirectoryWithPursFilesConfig
+        { directoryWithPursFilesConfig_prependPathToModule = maybeModulePath
+        , directoryWithPursFilesConfig_pathToDirectory = path
+        , directoryWithPursFilesConfig_required = required
+        }
+    -- Create configs from project roots
+    rootConfigs = concatMap (\rootPath ->
+      [ createConfig Nothing (rootPath </> "src") True
+      , createConfig (Just testPathToModule) (rootPath </> "test") False
+      ]) (appOptions_projectRoots opts)
+    -- Create configs from source directories
+    srcConfigs = map (\srcDir -> createConfig Nothing srcDir True) (appOptions_srcDirs opts)
+    -- Create configs from test directories
+    testConfigs = map (\testDir -> createConfig (Just testPathToModule) testDir True) (appOptions_testDirs opts)
+    -- Create configs from custom directories
+    customConfigs = map (\(pathToModule, dir) -> createConfig (Just pathToModule) dir True) (appOptions_customDirs opts)
+    allConfigs = rootConfigs ++ srcConfigs ++ testConfigs ++ customConfigs
+  in NonEmpty.nonEmpty allConfigs
+
+-- Convert a directory path to include a trailing slash
+parseDir :: ReadM Turtle.FilePath
+parseDir = fmap (toS . ensureTrailingSlash) str
+  where
+    -- Utility function to ensure a path ends with a slash
+    ensureTrailingSlash :: Text -> Text
+    ensureTrailingSlash p = if Text.last p == '/' then p else p <> "/"
+
+-- `--root ./myproj` SHOULD EQUAL TO `--src ./myproj/src --test ./myproj/test` SHOULD EQUAL TO `--src ./myproj/src --custom Test ./myproj/test`
 appOptionsParser :: Parser AppOptions
 appOptionsParser = AppOptions
-  <$> some1
-    ( fmap makeValidDirectory $ strOption
-        ( long "directory"
-      <> short 'd'
-      <> metavar "DIRECTORY"
-      <> help "Base dir with .purs files. Can pass multiple -d" )
-    )
+  <$> many (option parseDir (long "root" <> short 'r' <> metavar "DIRECTORY" <> help "Base dir with two directories - src/ and test/, containg .purs files. Can pass multiple -r" ))
+  <*> many (option parseDir (long "src" <> short 's' <> metavar "DIRECTORY" <> help "Source directory."))
+  <*> many (option parseDir (long "test" <> short 't' <> metavar "DIRECTORY" <> help "Test directory."))
+  <*> many customDirOption
+  where
+    customDirOption :: Parser (PathToModule, Turtle.FilePath)
+    customDirOption = (,) <$> (argument parsePathToModule (metavar "MODULE" <> help "'Foo.Bar'")) <*> argument parseDir (metavar "DIRECTORY" <> help "Custom module directory.")
+
 
 appOptionsParserInfo :: ParserInfo AppOptions
 appOptionsParserInfo = info (appOptionsParser <**> helper)
   ( fullDesc
-  <> progDesc "Adds or updates `module Foo.Bar` based on path"
+  <> progDesc "Adds or updates `module Foo.Bar` based on path. IF .purs file is in test/ THEN `module Test.Foo.Bar` IFELSE "
   <> header "Update module name in directory recursively" )
 
 -- Example:
 -- baseDir - /home/srghma/projects/purescript-halogen-nextjs/app/
 -- filePath - /home/srghma/projects/purescript-halogen-nextjs/app/Nextjs/Pages/Buttons/purs.purs
 -- output - ["Nextjs","Pages","Buttons","purs"]
+
+-- | Converts a full file path to a module path by stripping the base directory
+-- | and transforming the remaining path into a list of module segments.
 fullPathToPathToModule :: Turtle.FilePath -> Turtle.FilePath -> IO PathToModule
 fullPathToPathToModule baseDir fullPath = do
-  fullPath'' :: Turtle.FilePath <- maybe (Turtle.die $ "Cannot strip baseDir " <> show baseDir <> " from path " <> show fullPath) pure $ Turtle.stripPrefix baseDir fullPath
-  let modulePathWithoutRoot :: [Text] = fmap (toS . stripSuffix "/" . Turtle.encodeString) . Turtle.splitDirectories . Filesystem.Path.dropExtensions $ fullPath''
-
-  modulePathWithoutRoot' :: NonEmpty Text <- maybe (Turtle.die $ "should be nonEmpty modulePathWithoutRoot for" <> show baseDir <> " from path " <> show fullPath) pure $ NonEmpty.nonEmpty modulePathWithoutRoot
-
+  -- Strip the base directory from the full path
+  fullPathWithoutBase :: Turtle.FilePath <- maybe (die $ "Cannot strip baseDir " <> show baseDir <> " from path " <> show fullPath) pure $ Turtle.stripPrefix baseDir fullPath
+  -- Split the remaining path into directories and remove extensions
+  let modulePathWithoutRoot :: [Text] = fmap (toS . stripSuffix "/" . Turtle.encodeString)
+                                  . Turtle.splitDirectories
+                                  . System.FilePath.dropExtensions
+                                  $ fullPathWithoutBase
+  -- Ensure the module path is non-empty
+  modulePathWithoutRoot' :: NonEmpty Text <- maybe
+    (Turtle.die $ "Module path should be nonEmpty for baseDir: " <> show baseDir <> ", fullPath: " <> show fullPath)
+    pure
+    (NonEmpty.nonEmpty modulePathWithoutRoot)
+  -- Return the module path as a NonEmpty list of Text
   pure (PathToModule modulePathWithoutRoot')
-
-appendIfNotAlreadySuffix :: Eq a => [a] -> [a] -> [a]
-appendIfNotAlreadySuffix suffix target =
-  if List.isSuffixOf suffix target
-     then target
-     else target ++ suffix
 
 stripSuffix :: Eq a => [a] -> [a] -> [a]
 stripSuffix suffix target =
@@ -99,16 +148,14 @@ stripSuffix suffix target =
      then List.reverse $ List.drop (List.length suffix) $ List.reverse target
      else target
 
--- make it end with /
-makeValidDirectory :: Turtle.FilePath -> Turtle.FilePath
-makeValidDirectory = Turtle.decodeString . appendIfNotAlreadySuffix "/" . Turtle.encodeString
-
+withConcurrentPutStrLn :: (Text -> IO ()) -> IO ()
 withConcurrentPutStrLn f = do
   mutex <- newMVar ()
-
   let putStrLn' = withMVar mutex . const . putStrLn @Text
-
   f putStrLn'
+
+data FindPursFilesError
+  = FindPursFilesError_DirectoryDoesntExist Turtle.FilePath
 
 findPursFiles :: Turtle.FilePath -> IO [Turtle.FilePath]
 findPursFiles baseDir = do
@@ -124,12 +171,42 @@ findPursFiles baseDir = do
 
   pure filePaths
 
+ensureDirsExist :: NonEmpty Turtle.FilePath -> IO ()
+ensureDirsExist filepaths = do
+  -- Check if directories exist
+  results <- forM filepaths $ \path -> do
+    exists <- System.Directory.doesDirectoryExist path
+    return (path, exists)
+  -- Filter out non-existing directories
+  let nonExistingDirs = mapMaybe (\(path, exists) -> if not exists then Just path else Nothing) results
+  -- If there are non-existing directories, terminate with an error message
+  case nonExistingDirs of
+    Nothing -> pure ()
+    Just nonExistingDirs' -> die $ "The following directories do not exist:\n" <> (Text.unlines $ map Turtle.encodeString nonExistingDirs')
+
 main :: IO ()
 main = do
   appOptions <- execParser appOptionsParserInfo
 
+  directoryWithPursFilesConfig :: NonEmpty DirectoryWithPursFilesConfig <-
+    case appOptionsToDirectoryWithPursFilesConfig appOptions of
+      Nothing -> Turtle.die "You didnt provide any input"
+      Just d -> pure d
+
+  let
+    dirsThatRequiredToBePresent :: Maybe (NonEmpty Turtle.FilePath) =
+      mapMaybe
+      (\config ->
+        if directoryWithPursFilesConfig_required config
+           then Just directoryWithPursFilesConfig_pathToDirectory config
+           else Nothing)
+      directoryWithPursFilesConfig
+
+  maybe ensureDirsExist pure dirsThatRequiredToBePresent
+
   baseDirsWithPursFiles :: NonEmpty (Turtle.FilePath, [Turtle.FilePath]) <-
-    forConcurrently (directories appOptions) \baseDir -> do
+    forConcurrently directoryWithPursFilesConfig \config -> do
+      let baseDir = directoryWithPursFilesConfig_pathToDirectory config
       files <- findPursFiles baseDir
       pure $ (baseDir, files)
 

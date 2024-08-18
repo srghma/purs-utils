@@ -54,28 +54,29 @@ default-extensions:
   - BlockArguments
 
 dependencies:
-- base >= 4.7 && < 5
-- turtle
-- protolude
-- directory
-- filepath
-- text
-- foldl
-- directory-tree
-- cases
-- optparse-applicative
-- containers
-- string-qq
-- hspec
-- hspec-discover
-- regex-base
-- regex-pcre
-- regex-with-pcre
-- regex
-- async
-- system-filepath
-- ilist
-- mtl
+  - base >= 4.7 && < 5
+  - turtle
+  - protolude
+  - directory
+  - filepath
+  - text
+  - foldl
+  - directory-tree
+  - cases
+  - optparse-applicative
+  - containers
+  - string-qq
+  - hspec
+  - hspec-discover
+  - regex-base
+  - regex-pcre
+  - regex-with-pcre
+  - regex
+  - async
+  # - system-filepath
+  - ilist
+  - mtl
+  - non-empty-text
 
 library:
   source-dirs: src
