@@ -2,6 +2,8 @@
 
 # How it works
 
+![hj](https://i.imgur.com/M8OTg6X.png)
+
 ```sh
 # description
 
