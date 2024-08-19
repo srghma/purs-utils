@@ -4,16 +4,16 @@ import           Protolude
 
 import           Test.Hspec
 
-import qualified Data.Map as Map
-import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.List as List
-import Data.String.QQ
+import qualified Data.List         as List
+import qualified Data.Map          as Map
+import           Data.String.QQ
+import           Data.Text         (Text)
+import qualified Data.Text         as Text
 
-import Text.Regex.Base
-import Text.RE.PCRE.Text
-import CssContentToTypes
-import Control.Arrow
+import           Control.Arrow
+import           CssContentToTypes
+import           Text.RE.PCRE.Text
+import           Text.Regex.Base
 
 cssContent :: Text
 cssContent = [s|

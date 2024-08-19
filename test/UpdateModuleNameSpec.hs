@@ -4,19 +4,19 @@ import           Protolude
 
 import           Test.Hspec
 
-import qualified Data.Map as Map
-import Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.List as List
-import Data.String.QQ
-import "non-empty-text" Data.NonEmptyText (NonEmptyText)
+import qualified Data.List                          as List
+import qualified Data.Map                           as Map
+import           "non-empty-text" Data.NonEmptyText (NonEmptyText)
 import qualified "non-empty-text" Data.NonEmptyText as NonEmptyText
+import           Data.String.QQ
+import           Data.Text                          (Text)
+import qualified Data.Text                          as Text
 
-import Text.Regex.Base
-import Text.RE.PCRE.Text
-import Control.Arrow
-import ModuleName
-import UpdateModuleName
+import           Control.Arrow
+import           ModuleName
+import           Text.RE.PCRE.Text
+import           Text.Regex.Base
+import           UpdateModuleName
 
 dataPercent = ModuleName (NonEmptyText.new 'D' "ata" :| [NonEmptyText.new 'P' "ercent"])
 

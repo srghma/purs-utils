@@ -1,23 +1,23 @@
 module UpdateModuleName where
 
-import "protolude" Protolude
-import "text" Data.Text (Text)
-import qualified "text" Data.Text as Text
-import "non-empty-text" Data.NonEmptyText (NonEmptyText)
+import           Data.Char                          as Char
+import qualified Data.List                          as List
+import qualified Data.List.NonEmpty                 as NonEmpty
+import           "non-empty-text" Data.NonEmptyText (NonEmptyText)
 import qualified "non-empty-text" Data.NonEmptyText as NonEmptyText
-import Text.Regex.Base
-import Text.RE.PCRE.Text
-import Data.String.QQ
-import qualified Data.List as List
-import qualified Data.List.NonEmpty as NonEmpty
-import Options.Applicative
-import Data.Char as Char
-import ModuleName
+import           Data.String.QQ
+import           "text" Data.Text                   (Text)
+import qualified "text" Data.Text                   as Text
+import           ModuleName
+import           Options.Applicative
+import           "protolude" Protolude
+import           Text.RE.PCRE.Text
+import           Text.Regex.Base
 
 startsWithModuleWord :: Text -> Bool
 startsWithModuleWord line = case Protolude.head (Text.words line) of
   Nothing -> False
-  Just h -> h == "module"
+  Just h  -> h == "module"
 
 data ModuleNameOutputError
   = ModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound

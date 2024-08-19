@@ -1,38 +1,43 @@
 module AppOptions where
 
-import Options.Applicative
-import Options.Applicative.NonEmpty
-import "protolude" Protolude hiding (find)
-import qualified "turtle" Turtle
-import "turtle" Turtle ((</>))
+import           Options.Applicative
+import           Options.Applicative.NonEmpty
+import           "protolude" Protolude                  hiding (find)
 import qualified "directory" System.Directory
 import qualified "filepath" System.FilePath
+import           "turtle" Turtle                        ((</>))
+import qualified "turtle" Turtle
 -- import qualified "system-filepath" Filesystem.Path
-import "base" Data.String (String)
-import qualified "base" Data.String as String
-import qualified "base" Data.List as List
-import qualified Data.List.Index as List
-import qualified "text" Data.Text as Text
-import qualified Data.Text.IO
-import qualified Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NonEmpty
-import qualified "directory-tree" System.Directory.Tree
-import "directory-tree" System.Directory.Tree (DirTree (..), AnchoredDirTree (..))
 import qualified "cases" Cases
-import "non-empty-text" Data.NonEmptyText (NonEmptyText)
-import qualified "non-empty-text" Data.NonEmptyText as NonEmptyText
-import Text.Colour (TerminalCapabilities(..))
-import System.IO (stdin, stdout)
+import           Control.Concurrent.Async
+import           Control.Monad.Writer
+import qualified "base" Data.List                       as List
+import qualified Data.List.Index                        as List
+import qualified Data.List.NonEmpty                     (NonEmpty)
+import qualified Data.List.NonEmpty                     as NonEmpty
+import           "non-empty-text" Data.NonEmptyText     (NonEmptyText)
+import qualified "non-empty-text" Data.NonEmptyText     as NonEmptyText
+import           "base" Data.String                     (String)
+import qualified "base" Data.String                     as String
+import qualified "text" Data.Text                       as Text
+import qualified Data.Text.IO
+import qualified GHC.Float                              as Turtle
+import           ModuleName
+import           "directory-tree" System.Directory.Tree
+    ( AnchoredDirTree (..)
+    , DirTree (..)
+    )
+import qualified "directory-tree" System.Directory.Tree
+import           System.IO                              (stdin, stdout)
 import qualified Text.Colour
-import qualified Text.Colour.Capabilities as Text.Colour
-import qualified Text.Colour.Capabilities.FromEnv as Text.Colour
-import Control.Concurrent.Async
-import Control.Monad.Writer
-import ModuleName
-import UpdateModuleName
-import Utils
-import qualified GHC.Float as Turtle
-import Text.Colour.Chunk (Chunk)
+import           Text.Colour
+    ( TerminalCapabilities (..)
+    )
+import qualified Text.Colour.Capabilities               as Text.Colour
+import qualified Text.Colour.Capabilities.FromEnv       as Text.Colour
+import           Text.Colour.Chunk                      (Chunk)
+import           UpdateModuleName
+import           Utils
 
 ------------------------------------------------------------------------------------
 
@@ -102,7 +107,7 @@ parseCustomOption = do
   str <- str
   let (arg1, arg2) = splitOn "=" str
   case (toModuleName_stringSeparatedWithDots arg1, stringToDir (toS arg2)) of
-    (Left e, _) -> readerError . toS $ moduleNameError_print e
+    (Left e, _)        -> readerError . toS $ moduleNameError_print e
     (Right val1, val2) -> return $ CustomOption val1 val2
 
 ---------------------------------------------------------------------------------------------------------------------------------------
@@ -154,7 +159,7 @@ data CommandOptions
 
 commandOptionsParser :: Parser CommandOptions
 commandOptionsParser =
-  subparser
+  hsubparser
      ( command "format-in-place" (info (CommandOptions_FormatInPlace <$> targetDirectoriesOptionsParser) (progDesc "Update files"))
     <> command "check" (info (CommandOptions_Check <$> targetDirectoriesOptionsParser) (progDesc "Throw if files are not updated"))
      )
@@ -186,12 +191,12 @@ colorOptionParser = option parseColorOption
   )
 
 showColorOption :: ColorOption -> String
-showColorOption ColorOption_Auto   = "auto"
+showColorOption ColorOption_Auto  = "auto"
 -- showColorOption ColorOption_Always = "always"
-showColorOption ColorOption_Never  = "never"
+showColorOption ColorOption_Never = "never"
 
 data GlobalAndCommandOptions = GlobalAndCommandOptions
-  { globalAndCommandOptions_color :: ColorOption
+  { globalAndCommandOptions_color   :: ColorOption
   , globalAndCommandOptions_command :: CommandOptions
   }
   deriving (Show, Eq)
@@ -214,4 +219,4 @@ commandOptionsToCommandShort (CommandOptions_Check _) = Command_Check
 
 commandOptionsToTargetDirectoriesOptions :: CommandOptions -> TargetDirectoriesOptions
 commandOptionsToTargetDirectoriesOptions (CommandOptions_FormatInPlace x) = x
-commandOptionsToTargetDirectoriesOptions (CommandOptions_Check x) = x
+commandOptionsToTargetDirectoriesOptions (CommandOptions_Check x)         = x

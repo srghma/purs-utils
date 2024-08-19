@@ -14,38 +14,41 @@ module Utils where
 -- use https://github.com/luke-clifton/shh
 
 -- import qualified Filesystem.Path.CurrentOS
-import Options.Applicative
-import Options.Applicative.NonEmpty ()
-import "protolude" Protolude hiding (find)
-import qualified "turtle" Turtle
-import "turtle" Turtle ((</>))
+import           Options.Applicative
+import           Options.Applicative.NonEmpty           ()
+import           "protolude" Protolude                  hiding (find)
 import qualified "directory" System.Directory
 import qualified "filepath" System.FilePath
+import           "turtle" Turtle                        ((</>))
+import qualified "turtle" Turtle
 -- import qualified "system-filepath" Filesystem.Path
-import "base" Data.String (String)
-import qualified "base" Data.String as String
-import qualified "base" Data.List as List
-import qualified Data.List.Index as List
-import qualified "text" Data.Text as Text
-import qualified Data.Text.IO
-import qualified Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NonEmpty
-import qualified "directory-tree" System.Directory.Tree
-import "directory-tree" System.Directory.Tree (DirTree (..), AnchoredDirTree (..))
 import qualified "cases" Cases
-import "non-empty-text" Data.NonEmptyText (NonEmptyText)
-import qualified "non-empty-text" Data.NonEmptyText as NonEmptyText
-import System.IO (stdout, stderr)
+import qualified "base" Data.List                       as List
+import qualified Data.List.Index                        as List
+import qualified Data.List.NonEmpty                     (NonEmpty)
+import qualified Data.List.NonEmpty                     as NonEmpty
+import           "non-empty-text" Data.NonEmptyText     (NonEmptyText)
+import qualified "non-empty-text" Data.NonEmptyText     as NonEmptyText
+import           "base" Data.String                     (String)
+import qualified "base" Data.String                     as String
+import qualified "text" Data.Text                       as Text
+import qualified Data.Text.IO
+import           "directory-tree" System.Directory.Tree
+    ( AnchoredDirTree (..)
+    , DirTree (..)
+    )
+import qualified "directory-tree" System.Directory.Tree
+import           System.IO                              (stderr, stdout)
 
-import Control.Concurrent.Async
-import Control.Monad.Writer
-import ModuleName
-import UpdateModuleName
+import           Control.Concurrent.Async
+import           Control.Monad.Writer
+import           ModuleName
+import           UpdateModuleName
 
 filterDirTreeByFilename :: (String -> Bool) -> DirTree a -> Bool
 filterDirTreeByFilename _ (Dir ('.':_) _) = False
-filterDirTreeByFilename pred (File n _) = pred n
-filterDirTreeByFilename _ _ = True
+filterDirTreeByFilename pred (File n _)   = pred n
+filterDirTreeByFilename _ _               = True
 
 dirTreeContent :: DirTree a -> IO [a]
 dirTreeContent (Failed name err) = Turtle.die $ "Dir tree error: filename " <> show name <> ", error " <> show err
@@ -78,7 +81,7 @@ splitOn delimiter text =
   let (before, rest) = Text.breakOn delimiter text
    in case Text.stripPrefix delimiter rest of
         Just after -> (before, after)
-        Nothing -> (before, rest) -- Shouldn't happen because breakOn guarantees the delimiter is there if `rest` is non-empty.
+        Nothing    -> (before, rest) -- Shouldn't happen because breakOn guarantees the delimiter is there if `rest` is non-empty.
 
 -- Example:
 -- baseDir - /home/srghma/projects/purescript-halogen-nextjs/app/

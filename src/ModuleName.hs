@@ -1,17 +1,17 @@
 module ModuleName where
 
-import "protolude" Protolude
-import "text" Data.Text (Text)
-import qualified "text" Data.Text as Text
-import "non-empty-text" Data.NonEmptyText (NonEmptyText)
+import           Data.Char                          as Char
+import qualified Data.List                          as List
+import qualified Data.List.NonEmpty                 as NonEmpty
+import           "non-empty-text" Data.NonEmptyText (NonEmptyText)
 import qualified "non-empty-text" Data.NonEmptyText as NonEmptyText
-import Text.Regex.Base
-import Text.RE.PCRE.Text
-import Data.String.QQ
-import qualified Data.List as List
-import qualified Data.List.NonEmpty as NonEmpty
-import Options.Applicative
-import Data.Char as Char
+import           Data.String.QQ
+import           "text" Data.Text                   (Text)
+import qualified "text" Data.Text                   as Text
+import           Options.Applicative
+import           "protolude" Protolude
+import           Text.RE.PCRE.Text
+import           Text.Regex.Base
 
 newtype ModuleName = ModuleName { unModuleName :: NonEmpty NonEmptyText }
   deriving (Show, Eq)
@@ -62,7 +62,7 @@ toModuleName_stringSeparatedWithDots = toModuleName_stringSeparatedWith "."
 parseModuleName :: ReadM ModuleName
 parseModuleName = eitherReader $ \s ->
   case toModuleName_stringSeparatedWithDots s of
-    Left e -> Left . toS $ moduleNameError_print e
+    Left e  -> Left . toS $ moduleNameError_print e
     Right x -> Right x
 
 printModuleName :: ModuleName -> Text

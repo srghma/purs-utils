@@ -3,8 +3,9 @@
     cabal = "latest";
     hlint = "latest";
     haskell-language-server = "latest";
-    hpack = "latest";
+    hpack = "latest"; # instead of stack
     hspec-discover = "latest";
+    stylish-haskell = "latest"; # stylish-haskell -i -r .
   };
 }
 

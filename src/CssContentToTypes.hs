@@ -2,15 +2,15 @@ module CssContentToTypes
 ( cssContentToTypes
 ) where
 
-import "protolude" Protolude
-import "text" Data.Text hiding (map)
-import Text.Regex.Base
-import Text.RE.PCRE.Text
-import Language.Scss.Parser
-import Data.String.QQ
-import qualified Data.Text as Text
-import qualified Data.List as List
-import Text.Megaparsec (parseMaybe)
+import qualified Data.List             as List
+import           Data.String.QQ
+import qualified Data.Text             as Text
+import           "text" Data.Text      hiding (map)
+import           Language.Scss.Parser
+import           "protolude" Protolude
+import           Text.Megaparsec       (parseMaybe)
+import           Text.RE.PCRE.Text
+import           Text.Regex.Base
 
 -- [".myButton",".myButton",".myButton2","#myButton3","#myButton4",".myButton5",".classInsideClass",".classInsideClass2",,".classWithBefore2Pre",".classWithBefore2:before",".classWithBefore3:before",".classWithBefore3Post",".classInOneLine","#idInOneLine",".myButton3"]
 

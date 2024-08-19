@@ -31,5 +31,5 @@ in pkgs.haskell-nix.project { # cabalProject {
 }
 
 ############
-# nix-build -A purs-utils.components.exes.tidy-module-name
-# nix-build -A purs-utils.components.exes.generate-css-modules
+# nix-build -A purs-utils.components.exes.purs-tidy-module-name
+# nix-build -A purs-utils.components.exes.purs-generate-css-modules

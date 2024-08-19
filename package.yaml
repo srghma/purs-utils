@@ -88,7 +88,7 @@ library:
   source-dirs: src
 
 executables:
-  tidy-module-name:
+  purs-tidy-module-name:
     main:                Main.hs
     source-dirs:         tidy-module-name
     ghc-options:
@@ -98,7 +98,7 @@ executables:
     dependencies:
       - purs-utils
 
-  generate-css-modules:
+  purs-generate-css-modules:
     main:                Main.hs
     source-dirs:         generate-css-modules
     ghc-options:

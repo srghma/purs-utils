@@ -2,40 +2,45 @@ module Logger where
 
 -- import qualified "system-filepath" Filesystem.Path
 
-import Control.Concurrent.Async
-import Control.Monad.Writer
-import qualified Data.List.Index as List
-import qualified Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NonEmpty
-import qualified Data.Text.IO
-import qualified GHC.Float as Turtle
-import ModuleName
-import Options.Applicative
-import Options.Applicative.NonEmpty
-import System.IO (stdin, stdout)
-import Text.Colour (TerminalCapabilities (..))
-import qualified Text.Colour
-import qualified Text.Colour.Capabilities as Text.Colour
-import qualified Text.Colour.Capabilities.FromEnv as Text.Colour
-import Text.Colour.Chunk (Chunk)
-import UpdateModuleName
-import Utils
-import qualified "base" Data.List as List
-import "base" Data.String (String)
-import qualified "base" Data.String as String
 import qualified "cases" Cases
+import           Control.Concurrent.Async
+import           Control.Monad.Writer
+import qualified "base" Data.List                       as List
+import qualified Data.List.Index                        as List
+import qualified Data.List.NonEmpty                     (NonEmpty)
+import qualified Data.List.NonEmpty                     as NonEmpty
+import           "non-empty-text" Data.NonEmptyText     (NonEmptyText)
+import qualified "non-empty-text" Data.NonEmptyText     as NonEmptyText
+import           "base" Data.String                     (String)
+import qualified "base" Data.String                     as String
+import qualified "text" Data.Text                       as Text
+import qualified Data.Text.IO
+import qualified GHC.Float                              as Turtle
+import           ModuleName
+import           Options.Applicative
+import           Options.Applicative.NonEmpty
+import           "protolude" Protolude                  hiding (find)
 import qualified "directory" System.Directory
-import "directory-tree" System.Directory.Tree (AnchoredDirTree (..), DirTree (..))
+import           "directory-tree" System.Directory.Tree
+    ( AnchoredDirTree (..)
+    , DirTree (..)
+    )
 import qualified "directory-tree" System.Directory.Tree
 import qualified "filepath" System.FilePath
-import "non-empty-text" Data.NonEmptyText (NonEmptyText)
-import qualified "non-empty-text" Data.NonEmptyText as NonEmptyText
-import "protolude" Protolude hiding (find)
-import qualified "text" Data.Text as Text
-import "turtle" Turtle ((</>))
+import           System.IO                              (stdin, stdout)
+import qualified Text.Colour
+import           Text.Colour
+    ( TerminalCapabilities (..)
+    )
+import qualified Text.Colour.Capabilities               as Text.Colour
+import qualified Text.Colour.Capabilities.FromEnv       as Text.Colour
+import           Text.Colour.Chunk                      (Chunk)
+import           "turtle" Turtle                        ((</>))
 import qualified "turtle" Turtle
+import           UpdateModuleName
+import           Utils
 
-import AppOptions
+import           AppOptions
 
 colorOptionToTerminalCapabilities :: ColorOption -> IO (TerminalCapabilities, TerminalCapabilities)
 colorOptionToTerminalCapabilities ColorOption_Auto = do
