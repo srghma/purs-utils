@@ -1,15 +1,15 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.36.0.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
-name:           update-module-name-purs
+name:           purs-utils
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/srghma/update-module-name-purs#readme>
-homepage:       https://github.com/srghma/update-module-name-purs#readme
-bug-reports:    https://github.com/srghma/update-module-name-purs/issues
-author:         srghma
+description:    Please see the README on GitHub at <https://github.com/srghma/purs-utils#readme>
+homepage:       https://github.com/srghma/purs-utils#readme
+bug-reports:    https://github.com/srghma/purs-utils/issues
+author:         Serhii Khoma
 maintainer:     srghma@gmail.com
 copyright:      2019 srghma
 license:        BSD3
@@ -21,13 +21,18 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/srghma/update-module-name-purs
+  location: https://github.com/srghma/purs-utils
 
 library
   exposed-modules:
+      AppOptions
+      CssContentToTypes
+      Logger
+      ModuleName
       UpdateModuleName
+      Utils
   other-modules:
-      Paths_update_module_name_purs
+      Paths_purs_utils
   hs-source-dirs:
       src
   default-extensions:
@@ -75,6 +80,7 @@ library
     , hspec
     , hspec-discover
     , ilist
+    , megaparsec
     , mtl
     , non-empty-text
     , optparse-applicative
@@ -83,17 +89,21 @@ library
     , regex-base
     , regex-pcre
     , regex-with-pcre
+    , safe-coloured-text
+    , safe-coloured-text-layout
+    , safe-coloured-text-terminfo
+    , scss-format
     , string-qq
     , text
     , turtle
   default-language: Haskell2010
 
-executable update-module-name-purs-exe
+executable generate-css-modules
   main-is: Main.hs
   other-modules:
-      Paths_update_module_name_purs
+      Paths_purs_utils
   hs-source-dirs:
-      cli
+      generate-css-modules
   default-extensions:
       BangPatterns
       ConstraintKinds
@@ -140,26 +150,103 @@ executable update-module-name-purs-exe
     , hspec
     , hspec-discover
     , ilist
+    , megaparsec
     , mtl
     , non-empty-text
     , optparse-applicative
     , protolude
+    , purs-utils
     , regex
     , regex-base
     , regex-pcre
     , regex-with-pcre
+    , safe-coloured-text
+    , safe-coloured-text-layout
+    , safe-coloured-text-terminfo
+    , scss-format
     , string-qq
     , text
     , turtle
-    , update-module-name-purs
   default-language: Haskell2010
 
-test-suite update-module-name-purs-test
+executable tidy-module-name
+  main-is: Main.hs
+  other-modules:
+      Paths_purs_utils
+  hs-source-dirs:
+      tidy-module-name
+  default-extensions:
+      BangPatterns
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveDataTypeable
+      DeriveGeneric
+      DeriveLift
+      DuplicateRecordFields
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GADTs
+      GeneralizedNewtypeDeriving
+      InstanceSigs
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NoImplicitPrelude
+      OverloadedStrings
+      PackageImports
+      QuasiQuotes
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneDeriving
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      ViewPatterns
+      DerivingStrategies
+      BlockArguments
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      async
+    , base >=4.7 && <5
+    , cases
+    , containers
+    , directory
+    , directory-tree
+    , filepath
+    , foldl
+    , hspec
+    , hspec-discover
+    , ilist
+    , megaparsec
+    , mtl
+    , non-empty-text
+    , optparse-applicative
+    , protolude
+    , purs-utils
+    , regex
+    , regex-base
+    , regex-pcre
+    , regex-with-pcre
+    , safe-coloured-text
+    , safe-coloured-text-layout
+    , safe-coloured-text-terminfo
+    , scss-format
+    , string-qq
+    , text
+    , turtle
+  default-language: Haskell2010
+
+test-suite purs-utils-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      CssContentToTypesSpec
       UpdateModuleNameSpec
-      Paths_update_module_name_purs
+      Paths_purs_utils
   hs-source-dirs:
       test
   default-extensions:
@@ -208,16 +295,21 @@ test-suite update-module-name-purs-test
     , hspec
     , hspec-discover
     , ilist
+    , megaparsec
     , mtl
     , non-empty-text
     , optparse-applicative
     , protolude
+    , purs-utils
     , regex
     , regex-base
     , regex-pcre
     , regex-with-pcre
+    , safe-coloured-text
+    , safe-coloured-text-layout
+    , safe-coloured-text-terminfo
+    , scss-format
     , string-qq
     , text
     , turtle
-    , update-module-name-purs
   default-language: Haskell2010

@@ -1,0 +1,9 @@
+packages: .
+
+-- nix-prefetch-git https://github.com/rl-king/scss-format
+-- https://github.com/input-output-hk/haskell.nix/blob/80d9d079d86b33bdf8e09faa5af0f1ffc99ef920/docs/tutorials/source-repository-hashes.md?plain=1#L32
+source-repository-package
+  type: git
+  location: https://github.com/rl-king/scss-format.git
+  tag: 3c4993337e2a92433b311c5fcfd431b83e0b62c0
+  --sha256: 16gw7syc8qg5k0gyd40yw4vw83yqj78k0qgq4yg3gh8f545mz2r2

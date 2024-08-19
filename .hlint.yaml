@@ -13,6 +13,7 @@
 
 - group: {name: dollar, enabled: true} # Replace `a $ b $ c` with `a . b $ c`.
 
+- ignore: "Use camelCase"
 # Add custom hints for this project:
 #
 # Will suggest replacing "wibbleMany [myvar]" with "wibbleOne myvar".

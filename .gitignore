@@ -5,3 +5,4 @@ generate-all-tests.cabal
 *.cache
 dist-newstyle
 cabal.project.local
+result

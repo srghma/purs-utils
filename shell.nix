@@ -1,11 +1,15 @@
-# (import ./default.nix).shellFor {
-#   tools = {
-#     cabal = "latest";
-#     hlint = "latest";
-#     haskell-language-server = "latest";
-#   };
-# }
+(import ./default.nix).shellFor {
+  tools = {
+    cabal = "latest";
+    hlint = "latest";
+    haskell-language-server = "latest";
+    hpack = "latest";
+    hspec-discover = "latest";
+  };
+}
 
-# nix-shell
-# cabal new-repl update-module-name-purs:library:update-module-name-purs-exe
-# cabal new-build update-module-name-purs
+# XXX: in vscode settings set PATH instead of GHCUP
+
+# nix-shell --run 'hpack && code .'
+# code .
+# cabal new-build purs-utils

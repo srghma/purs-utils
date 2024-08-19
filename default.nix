@@ -19,15 +19,17 @@ let
     # These arguments passed to nixpkgs, include some patches and also
     # the haskell.nix functionality itself as an overlay.
     haskellNix.nixpkgsArgs;
-in pkgs.haskell-nix.project {
+in pkgs.haskell-nix.project { # cabalProject {
   # 'cleanGit' cleans a source directory based on the files known by git
   src = pkgs.haskell-nix.haskellLib.cleanGit {
-    name = "update-module-name-purs";
+    name = "purs-utils";
     src = ./.;
   };
   # Specify the GHC version to use.
-  # compiler-nix-name = "ghc925"; # Not required for `stack.yaml` based projects.
+  compiler-nix-name = "ghc966"; # Not required for `stack.yaml` based projects.
+  supportHpack = false; # Now can `rm -f *.cabal`
 }
 
 ############
-# nix-build -A update-module-name-purs.components.exes.update-module-name-purs-exe
+# nix-build -A purs-utils.components.exes.tidy-module-name
+# nix-build -A purs-utils.components.exes.generate-css-modules
