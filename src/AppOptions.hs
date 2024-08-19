@@ -53,6 +53,7 @@ data DirectoryConfig = DirectoryConfig
   , directoryConfig_pathToDirectory   :: Turtle.FilePath
   , directoryConfig_required          :: Bool
   }
+  deriving (Show, Eq)
 
 rootConfig :: Turtle.FilePath -> NonEmpty DirectoryConfig
 rootConfig rootPath =
@@ -94,13 +95,13 @@ targetDirectoriesOptionsFlaggedToDirectoryConfig opts =
 ---------------------------------------------------------------------------------------------------------------------------------------
 
 data CustomOption = CustomOption ModuleName Turtle.FilePath
-  deriving (Show)
+  deriving (Show, Eq)
 
 parseCustomOption :: ReadM CustomOption
 parseCustomOption = do
   str <- str
   let (arg1, arg2) = splitOn "=" str
-  case (toModuleName_stringSeparatedWithDots arg1, stringToDir arg2) of
+  case (toModuleName_stringSeparatedWithDots arg1, stringToDir (toS arg2)) of
     (Left e, _) -> readerError . toS $ moduleNameError_print e
     (Right val1, val2) -> return $ CustomOption val1 val2
 
@@ -112,6 +113,7 @@ data TargetDirectoriesOptionsFlagged = TargetDirectoriesOptionsFlagged
   , targetDirectoriesOptionsFlagged_testDirs     :: [Turtle.FilePath] -- to (Just testModuleName, filepath, true)
   , targetDirectoriesOptionsFlagged_customDirs   :: [CustomOption] -- to (Just moduleName, filepath, true)
   }
+  deriving (Show, Eq)
 
 -- `program --root ./myproj`
 -- EQUAL TO `program --src ./myproj/src --test ./myproj/test`
@@ -133,6 +135,7 @@ targetDirectoriesOptionsFlaggedParser = TargetDirectoriesOptionsFlagged
 data TargetDirectoriesOptions
   = TargetDirectoriesOptions_Flagged TargetDirectoriesOptionsFlagged
   | TargetDirectoriesOptions_Positional [Turtle.FilePath]
+  deriving (Show, Eq)
 
 targetDirectoriesOptionsPositionalParser :: Parser [FilePath]
 targetDirectoriesOptionsPositionalParser = many (argument parseDir (metavar "DIRECTORY" <> help "Positional arguments treated as --root directories."))
@@ -147,6 +150,7 @@ targetDirectoriesOptionsParser
 data CommandOptions
   = CommandOptions_FormatInPlace TargetDirectoriesOptions
   | CommandOptions_Check TargetDirectoriesOptions
+  deriving (Show, Eq)
 
 commandOptionsParser :: Parser CommandOptions
 commandOptionsParser =
@@ -190,6 +194,7 @@ data GlobalAndCommandOptions = GlobalAndCommandOptions
   { globalAndCommandOptions_color :: ColorOption
   , globalAndCommandOptions_command :: CommandOptions
   }
+  deriving (Show, Eq)
 
 globalAndCommandOptionsParser :: Parser GlobalAndCommandOptions
 globalAndCommandOptionsParser = GlobalAndCommandOptions
@@ -201,6 +206,7 @@ globalAndCommandOptionsParser = GlobalAndCommandOptions
 data CommandShort
   = Command_FormatInPlace
   | Command_Check
+  deriving (Show, Eq)
 
 commandOptionsToCommandShort :: CommandOptions -> CommandShort
 commandOptionsToCommandShort (CommandOptions_FormatInPlace _) = Command_FormatInPlace

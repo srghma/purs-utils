@@ -14,7 +14,7 @@ import Options.Applicative
 import Data.Char as Char
 
 newtype ModuleName = ModuleName { unModuleName :: NonEmpty NonEmptyText }
-  deriving (Show)
+  deriving (Show, Eq)
 
 testModuleName :: ModuleName
 testModuleName = ModuleName . NonEmpty.singleton $ NonEmptyText.new 'T' "est"
@@ -22,6 +22,11 @@ testModuleName = ModuleName . NonEmpty.singleton $ NonEmptyText.new 'T' "est"
 data ModuleNameError
   = ModuleNameError_Empty
   | ModuleNameError_ShouldBeUppercaseAndAlphanumeric (NonEmpty NonEmptyText)
+  deriving (Show, Eq)
+
+prependMaybeModuleName :: Maybe ModuleName -> ModuleName -> ModuleName
+prependMaybeModuleName Nothing moduleName = moduleName
+prependMaybeModuleName (Just parentModuleName) moduleName = ModuleName $ unModuleName parentModuleName <> unModuleName moduleName
 
 moduleNameError_print :: ModuleNameError -> Text
 moduleNameError_print ModuleNameError_Empty = "Module name cannot be empty."

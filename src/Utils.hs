@@ -58,10 +58,12 @@ anyCaseToCamelCase :: Text -> Text
 anyCaseToCamelCase = Cases.process Cases.title Cases.camel -- first letter is always upper
 
 -- Utility function to ensure a path ends with a slash
-ensureTrailingSlash :: Text -> Text
-ensureTrailingSlash p = if Text.last p == '/' then p else p <> "/"
+-- ensureTrailingSlash :: Text -> Text
+-- ensureTrailingSlash p = if Text.last p == '/' then p else p <> "/"
+ensureTrailingSlash :: Turtle.FilePath -> Turtle.FilePath
+ensureTrailingSlash p = if not (null p) && List.last p == '/' then p else p ++ "/"
 
-stringToDir :: Text -> Turtle.FilePath
+stringToDir :: Turtle.FilePath -> Turtle.FilePath
 stringToDir = toS . ensureTrailingSlash
 
 -- Convert a directory path to include a trailing slash
@@ -157,3 +159,6 @@ ensureDirsExist filepaths = do
     Nothing -> pure ()
     Just nonExistingDirs' -> die $ "The following directories do not exist:\n" <> Text.unlines (toList $ map toS nonExistingDirs')
 
+
+wrapInQuotes :: Text.Text -> Text.Text
+wrapInQuotes t = "\"" <> t <> "\""

@@ -19,14 +19,14 @@ startsWithModuleWord line = case Protolude.head (Text.words line) of
   Nothing -> False
   Just h -> h == "module"
 
-data UpdateModuleNameOutputError
-  = UpdateModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound
-  | UpdateModuleNameOutputError__CannotParseModuleNameInsideOfFile Text
+data ModuleNameOutputError
+  = ModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound
+  | ModuleNameOutputError__CannotParseModuleNameInsideOfFile Text
   deriving (Show, Eq)
 
 data UpdateModuleNameOutput
   = UpdateModuleNameOutput__NothingChanged
-  | UpdateModuleNameOutput__Error UpdateModuleNameOutputError
+  | UpdateModuleNameOutput__Error ModuleNameOutputError
   | UpdateModuleNameOutput__Updated Text
   deriving (Show, Eq)
 
@@ -52,5 +52,33 @@ updateModuleName content expectedModuleName = do
                  else UpdateModuleNameOutput__Updated . Text.unlines $ (linesBeforeModule <>
                     [ Text.unwords $ ["module", printedExpectedModuleName] <> moduleLineTail
                     ] <> linesAfterModule)
-            _ -> UpdateModuleNameOutput__Error $ UpdateModuleNameOutputError__CannotParseModuleNameInsideOfFile moduleLine
-        _ -> UpdateModuleNameOutput__Error UpdateModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound
+            _ -> UpdateModuleNameOutput__Error $ ModuleNameOutputError__CannotParseModuleNameInsideOfFile moduleLine
+        _ -> UpdateModuleNameOutput__Error ModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound
+
+data CheckModuleNameOutput
+  = CheckModuleNameOutput__NothingChanged
+  | CheckModuleNameOutput__Error ModuleNameOutputError
+  | CheckModuleNameOutput__ActualDoesntExistExpectedShouldBeAdded Text
+  | CheckModuleNameOutput__ActualShouldBeUpdatedToExpected Text Text
+  deriving (Show, Eq)
+
+checkModuleName :: Text -> ModuleName -> CheckModuleNameOutput
+checkModuleName content expectedModuleName = do
+  let contentLines = Text.lines content
+  let lineWithModule :: Maybe Int = List.findIndex startsWithModuleWord contentLines
+
+  let printedExpectedModuleName = printModuleName expectedModuleName
+
+  case lineWithModule of
+    Nothing -> CheckModuleNameOutput__ActualDoesntExistExpectedShouldBeAdded printedExpectedModuleName
+    Just index ->
+      case List.splitAt index contentLines of
+        (linesBeforeModule, moduleLine : linesAfterModule) ->
+          case Text.words moduleLine of
+            "module" : actualModuleName : moduleLineTail ->
+              if actualModuleName == printedExpectedModuleName
+                then CheckModuleNameOutput__NothingChanged
+                else
+                  CheckModuleNameOutput__ActualShouldBeUpdatedToExpected actualModuleName printedExpectedModuleName
+            _ -> CheckModuleNameOutput__Error $ ModuleNameOutputError__CannotParseModuleNameInsideOfFile moduleLine
+        _ -> CheckModuleNameOutput__Error ModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound

@@ -65,16 +65,19 @@ main = do
 
   mapM_ ensureDirsExist dirsThatRequiredToBePresent
 
-  baseDirs :: NonEmpty (Turtle.FilePath, [Turtle.FilePath]) <-
+  -- traceM $ show directoryConfig
+
+  baseDirs :: NonEmpty (Turtle.FilePath, [Turtle.FilePath], Maybe ModuleName) <-
     forConcurrently directoryConfig \config -> do
       let baseDir = directoryConfig_pathToDirectory config
       files <- findFilesWith isPursFile baseDir
-      pure (baseDir, files)
+      pure (ensureTrailingSlash baseDir, files, directoryConfig_prependModuleName config)
+  -- traceM $ show baseDirs
 
   -- putStrLn $ "baseDir " <> Turtle.encodeString baseDir
 
   withConcurrentLogger logger \concurrentLogger ->
-    forConcurrently_ baseDirs \(baseDir, filePaths) ->
+    forConcurrently_ baseDirs \(baseDir, filePaths, maybePrependModuleName) ->
       forConcurrently_ filePaths \filePath -> do
         let
           log :: [Chunk] -> WriterT [[Chunk]] IO ()
@@ -90,42 +93,49 @@ main = do
 
             fileContent <- liftIO $ Data.Text.IO.readFile filePath
 
-            moduleName <- liftIO $ fullPathToModuleName baseDir filePath
+            moduleName_fromPath <- liftIO $ fullPathToModuleName baseDir filePath
 
-            case updateModuleName fileContent moduleName of
-              UpdateModuleNameOutput__NothingChanged ->
-                case commandShort of
-                  Command_FormatInPlace -> do
-                    log [Text.Colour.fore Text.Colour.blue "  nothing changed"]
-                  Command_Check ->
-                    log [Text.Colour.fore Text.Colour.blue "  is up to date"]
-              UpdateModuleNameOutput__Error error ->
-                let
-                  errorMessage =
-                    case error of
-                      UpdateModuleNameOutputError__CannotParseModuleNameInsideOfFile moduleLine
-                        -> "cannot parse module name " <> moduleLine
-                      UpdateModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound
-                        -> "impossible case, line with index not found"
-                in
-                  logAndCollectFatalErrorToReportInTheEnd
-                    [ Text.Colour.fore Text.Colour.red "  error: "
-                    , Text.Colour.fore Text.Colour.brightRed (Text.Colour.chunk errorMessage)
-                    ]
-              UpdateModuleNameOutput__Updated newFileContent ->
-                case commandShort of
-                  Command_FormatInPlace -> do
+            let moduleName_expected = prependMaybeModuleName maybePrependModuleName moduleName_fromPath
+
+            let
+              logModuleNameOutputError e =
+                logAndCollectFatalErrorToReportInTheEnd
+                  [ Text.Colour.fore Text.Colour.red "  error: "
+                  , Text.Colour.fore Text.Colour.brightRed $ Text.Colour.chunk
+                      case e of
+                        ModuleNameOutputError__CannotParseModuleNameInsideOfFile moduleLine
+                          -> "cannot parse module name " <> moduleLine
+                        ModuleNameOutputError__ImpossibleErrorLineWithIndexNotFound
+                          -> "impossible case, line with index not found"
+                  ]
+
+            case commandShort of
+              Command_FormatInPlace -> do
+                case updateModuleName fileContent moduleName_expected of
+                  UpdateModuleNameOutput__NothingChanged -> log [Text.Colour.fore Text.Colour.blue "  nothing changed"]
+                  UpdateModuleNameOutput__Error e -> logModuleNameOutputError e
+                  UpdateModuleNameOutput__Updated newFileContent -> do
                     liftIO $ Data.Text.IO.writeFile filePath newFileContent
                     log
                       [ Text.Colour.fore Text.Colour.yellow "  updated module name to \"",
-                        Text.Colour.fore Text.Colour.cyan (Text.Colour.chunk $ printModuleName moduleName),
+                        Text.Colour.fore Text.Colour.cyan (Text.Colour.chunk $ printModuleName moduleName_expected),
                         Text.Colour.fore Text.Colour.yellow "\""
                       ]
-                  Command_Check ->
+              Command_Check ->
+                case checkModuleName fileContent moduleName_expected of
+                  CheckModuleNameOutput__NothingChanged -> log [Text.Colour.fore Text.Colour.blue "  is up to date"]
+                  CheckModuleNameOutput__Error e -> logModuleNameOutputError e
+                  CheckModuleNameOutput__ActualDoesntExistExpectedShouldBeAdded expectedModuleName ->
                     logAndCollectCheckErrorToReportInTheEnd
-                      [ Text.Colour.fore Text.Colour.red "  module name should be updated to \"",
-                        Text.Colour.fore Text.Colour.cyan (Text.Colour.chunk $ printModuleName moduleName),
-                        Text.Colour.fore Text.Colour.yellow "\""
+                      [ Text.Colour.fore Text.Colour.red "  module name is not present in a file, "
+                      , Text.Colour.fore Text.Colour.cyan (Text.Colour.chunk $ wrapInQuotes expectedModuleName)
+                      , Text.Colour.fore Text.Colour.red " should be added"
                       ]
-
+                  CheckModuleNameOutput__ActualShouldBeUpdatedToExpected actualModuleName expectedModuleName ->
+                    logAndCollectCheckErrorToReportInTheEnd
+                      [ Text.Colour.fore Text.Colour.red "  module name "
+                      , Text.Colour.fore Text.Colour.cyan (Text.Colour.chunk $ wrapInQuotes actualModuleName)
+                      , Text.Colour.fore Text.Colour.red " should be updated to "
+                      , Text.Colour.fore Text.Colour.cyan (Text.Colour.chunk $ wrapInQuotes expectedModuleName)
+                      ]
         execWriterT action >>= (concurrentLogger Log . Text.Colour.unlinesChunks)
