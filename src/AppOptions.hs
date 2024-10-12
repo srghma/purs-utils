@@ -93,30 +93,40 @@ targetDirectoriesOptionsFlaggedToDirectoryConfig opts =
     -- Create configs from test directories
     testConfigs = map (\testDir -> DirectoryConfig (Just testModuleName) testDir True) (targetDirectoriesOptionsFlagged_testDirs opts)
     -- Create configs from custom directories
-    customConfigs = map (\(CustomOption moduleName dir) -> DirectoryConfig (Just moduleName) dir True) (targetDirectoriesOptionsFlagged_customDirs opts)
+    customConfigs = map (\(DirOption_Custom moduleName dir) -> DirectoryConfig (Just moduleName) dir True) (targetDirectoriesOptionsFlagged_customDirs opts)
     allConfigs = rootConfigs (targetDirectoriesOptionsFlagged_projectRoots opts) ++ srcConfigs ++ testConfigs ++ customConfigs
   in NonEmpty.nonEmpty allConfigs
 
 ---------------------------------------------------------------------------------------------------------------------------------------
 
-data CustomOption = CustomOption ModuleName Turtle.FilePath
+data DirOption_Custom = DirOption_Custom ModuleName Turtle.FilePath
   deriving (Show, Eq)
 
-parseCustomOption :: ReadM CustomOption
-parseCustomOption = do
+parseDirOption_Custom :: ReadM DirOption_Custom
+parseDirOption_Custom = do
   str <- str
   let (arg1, arg2) = splitOn "=" str
   case (toModuleName_stringSeparatedWithDots arg1, stringToDir (toS arg2)) of
     (Left e, _)        -> readerError . toS $ moduleNameError_print e
-    (Right val1, val2) -> return $ CustomOption val1 val2
+    (Right val1, val2) -> return $ DirOption_Custom val1 val2
 
 ---------------------------------------------------------------------------------------------------------------------------------------
 
+-- data TargetDirectoriesOptionsFlagged_Output = TargetDirectoriesOptionsFlagged_Output
+--   { prefix :: Maybe ModuleName
+--   , ensureEverythingThatIsInThisDirIsInsideOfAModuleNameDir :: Maybe ModuleName -- Just "Test"
+--   , path :: Turtle.FilePath
+--   ,
+--   }
+
 data TargetDirectoriesOptionsFlagged = TargetDirectoriesOptionsFlagged
+  -- { targetDirectoriesOptionsFlagged_projectRoots :: [Turtle.FilePath] -- to [(Nothing, filepath ++ "/src", true), [(Nothing, filepath ++ "/test", false)]]
+  -- , targetDirectoriesOptionsFlagged_directories      :: [Turtle.FilePath] -- to (Nothing, filepath, true)
+  -- , targetDirectoriesOptionsFlagged_directoryWithPrefix   :: [DirOption_Custom] -- to (Just moduleName, filepath, true)
   { targetDirectoriesOptionsFlagged_projectRoots :: [Turtle.FilePath] -- to [(Nothing, filepath ++ "/src", true), [(Just testModuleName, filepath ++ "/test", false)]]
   , targetDirectoriesOptionsFlagged_srcDirs      :: [Turtle.FilePath] -- to (Nothing, filepath, true)
   , targetDirectoriesOptionsFlagged_testDirs     :: [Turtle.FilePath] -- to (Just testModuleName, filepath, true)
-  , targetDirectoriesOptionsFlagged_customDirs   :: [CustomOption] -- to (Just moduleName, filepath, true)
+  , targetDirectoriesOptionsFlagged_customDirs   :: [DirOption_Custom] -- to (Just moduleName, filepath, true)
   }
   deriving (Show, Eq)
 
@@ -133,7 +143,7 @@ targetDirectoriesOptionsFlaggedParser = TargetDirectoriesOptionsFlagged
   <$> many (option parseDir (long "root" <> short 'r' <> metavar "DIRECTORY" <> help "Base dir with two directories - src/ and test/. Can pass multiple -r" ))
   <*> many (option parseDir (long "src" <> short 's' <> metavar "DIRECTORY" <> help "Source directory."))
   <*> many (option parseDir (long "test" <> short 't' <> metavar "DIRECTORY" <> help "Test directory."))
-  <*> many (option parseCustomOption (long "custom" <> short 'c'))
+  <*> many (option parseDirOption_Custom (long "custom" <> short 'c'))
 
 ---------------------------------------------------------------------------------------------------------------------------------------
 
